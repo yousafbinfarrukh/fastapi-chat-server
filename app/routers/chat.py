@@ -21,7 +21,12 @@ async def websocket_endpoint(websocket: WebSocket):
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.broadcast(f"{username} says: {data}")
+            message_data = data.split(":", 1)
+            if len(message_data) == 2:
+                recipient, message = message_data
+                await manager.send_personal_message(f"{username}: {message}", recipient.strip())
+            else:
+                await manager.send_personal_message("Invalid message format. Use 'recipient: message'", username)
     except WebSocketDisconnect:
         manager.disconnect(websocket, username)
         await manager.broadcast(f"{username} disconnected")

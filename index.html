@@ -6,7 +6,8 @@
 <body>
     <h1>Chat Application</h1>
     <form id="form" action="" onsubmit="sendMessage(event)">
-        <input type="text" id="messageText" autocomplete="off"/>
+        <input type="text" id="recipient" placeholder="Recipient" autocomplete="off"/>
+        <input type="text" id="messageText" placeholder="Message" autocomplete="off"/>
         <button>Send</button>
     </form>
     <ul id="messages"></ul>
@@ -36,9 +37,11 @@
             };
 
             function sendMessage(event) {
-                const input = document.getElementById("messageText");
-                ws.send(input.value);
-                input.value = '';
+                const recipientInput = document.getElementById("recipient");
+                const messageInput = document.getElementById("messageText");
+                ws.send(`${recipientInput.value}: ${messageInput.value}`);
+                messageInput.value = '';
+                recipientInput.value = '';
                 event.preventDefault();
             }
 
