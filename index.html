@@ -11,23 +11,41 @@
     </form>
     <ul id="messages"></ul>
     <script>
-        const clientId = Math.floor(Math.random() * 1000);
-        const ws = new WebSocket(`ws://localhost:8000/ws/${clientId}`);
-
-        ws.onmessage = function(event) {
-            const messages = document.getElementById('messages');
-            const message = document.createElement('li');
-            const content = document.createTextNode(event.data);
-            message.appendChild(content);
-            messages.appendChild(message);
-        };
-
-        function sendMessage(event) {
-            const input = document.getElementById("messageText");
-            ws.send(input.value);
-            input.value = '';
-            event.preventDefault();
+        async function login(username, password) {
+            const response = await fetch('http://localhost:8000/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await response.json();
+            return data.access_token;
         }
+
+        async function startChat() {
+            const token = await login(prompt("Username:"), prompt("Password:"));
+            const ws = new WebSocket(`ws://localhost:8000/ws?token=${token}`);
+
+            ws.onmessage = function(event) {
+                const messages = document.getElementById('messages');
+                const message = document.createElement('li');
+                const content = document.createTextNode(event.data);
+                message.appendChild(content);
+                messages.appendChild(message);
+            };
+
+            function sendMessage(event) {
+                const input = document.getElementById("messageText");
+                ws.send(input.value);
+                input.value = '';
+                event.preventDefault();
+            }
+
+            document.getElementById('form').onsubmit = sendMessage;
+        }
+
+        startChat();
     </script>
 </body>
 </html>

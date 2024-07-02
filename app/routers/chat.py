@@ -1,17 +1,27 @@
-from fastapi import APIRouter, WebSocket, WebSocketDisconnect
+from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from ..services.connection_manager import ConnectionManager
+from ..services.auth_service import decode_access_token
 
 router = APIRouter()
 
 manager = ConnectionManager()
 
-@router.websocket("/ws/{client_id}")
-async def websocket_endpoint(websocket: WebSocket, client_id: str):
-    await manager.connect(websocket, client_id)
+async def get_current_user(websocket: WebSocket):
+    token = websocket.query_params.get("token")
+    username = decode_access_token(token)
+    if not username:
+        await websocket.close(code=1008)
+        raise WebSocketDisconnect(code=1008)
+    return username
+
+@router.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    username = await get_current_user(websocket)
+    await manager.connect(websocket, username)
     try:
         while True:
             data = await websocket.receive_text()
-            await manager.broadcast(f"Client {client_id} says: {data}")
+            await manager.broadcast(f"{username} says: {data}")
     except WebSocketDisconnect:
-        manager.disconnect(websocket, client_id)
-        await manager.broadcast(f"Client {client_id} disconnected")
+        manager.disconnect(websocket, username)
+        await manager.broadcast(f"{username} disconnected")
