@@ -6,6 +6,10 @@
 <body>
     <h1>Chat Application</h1>
     <form id="form" action="" onsubmit="sendMessage(event)">
+        <select id="recipientType">
+            <option value="user">User</option>
+            <option value="group">Group</option>
+        </select>
         <input type="text" id="recipient" placeholder="Recipient" autocomplete="off"/>
         <input type="text" id="messageText" placeholder="Message" autocomplete="off"/>
         <button>Send</button>
@@ -37,9 +41,10 @@
             };
 
             function sendMessage(event) {
+                const recipientType = document.getElementById("recipientType").value;
                 const recipientInput = document.getElementById("recipient");
                 const messageInput = document.getElementById("messageText");
-                ws.send(`${recipientInput.value}: ${messageInput.value}`);
+                ws.send(`${recipientType}: ${recipientInput.value}: ${messageInput.value}`);
                 messageInput.value = '';
                 recipientInput.value = '';
                 event.preventDefault();
