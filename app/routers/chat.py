@@ -1,6 +1,6 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends
 from ..services.connection_manager import ConnectionManager
-from ..services.auth_service import decode_access_token
+from ..services.auth_service import decode_access_token, encrypt_message, decrypt_message
 
 router = APIRouter()
 
@@ -24,7 +24,8 @@ async def websocket_endpoint(websocket: WebSocket):
             message_data = data.split(":", 1)
             if len(message_data) == 2:
                 recipient, message = message_data
-                await manager.send_personal_message(f"{username}: {message}", recipient.strip())
+                encrypted_message = encrypt_message(f"{username}: {message}")
+                await manager.send_personal_message(encrypted_message, recipient.strip())
             else:
                 await manager.send_personal_message("Invalid message format. Use 'recipient: message'", username)
     except WebSocketDisconnect:

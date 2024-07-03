@@ -3,14 +3,22 @@ from typing import Optional
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from dotenv import load_dotenv
+from cryptography.fernet import Fernet
 import os
 
+# Load environment variables from .env file
 load_dotenv()
 
-
+# Read the secret key from the environment variable
 SECRET_KEY = os.getenv("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
+
+# Encryption key (ensure it's stored securely, not hardcoded in production)
+ENCRYPTION_KEY = os.getenv("ENCRYPTION_KEY")
+
+# Initialize encryption/decryption tool
+fernet = Fernet(ENCRYPTION_KEY)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -39,3 +47,9 @@ def decode_access_token(token: str):
         return username
     except JWTError:
         return None
+
+def encrypt_message(message: str) -> str:
+    return fernet.encrypt(message.encode()).decode()
+
+def decrypt_message(encrypted_message: str) -> str:
+    return fernet.decrypt(encrypted_message.encode()).decode()
