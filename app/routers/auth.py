@@ -1,18 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from ..schemas import UserCreate, Token
 from ..services.auth_service import create_access_token
 from ..services.user_manager import create_user, authenticate_user, get_user
-from ..models import SessionLocal
+from ..database import get_db
 
-router = APIRouter()
-
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+router = APIRouter(
+    tags=['Auth']
+)
 
 @router.post("/signup", response_model=Token)
 def signup(user: UserCreate, db: Session = Depends(get_db)):

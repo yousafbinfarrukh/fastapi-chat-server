@@ -2,7 +2,9 @@ from fastapi import APIRouter, Depends, HTTPException
 from ..services.auth_service import get_current_user
 from ..services.group_manager import group_manager
 
-router = APIRouter()
+router = APIRouter(
+    tags=['Groups']
+)
 
 @router.post("/create_group")
 def create_group(group_name: str, current_user: str = Depends(get_current_user)):
