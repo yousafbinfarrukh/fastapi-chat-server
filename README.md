@@ -21,8 +21,8 @@ This is a real-time chat application built with FastAPI, SQLAlchemy, and WebSock
 ### Clone the repository
 
 ```sh
-git clone https://github.com/yourusername/chat-server.git
-cd chat-server
+git clone https://github.com/yousafbinfarrukh/fastapi-chat-server.git
+cd fastapi-chat-server
 ```
 
 ### Create a virtual environment
